@@ -31,8 +31,7 @@ internal class AlercroyBot {
             return args[1];
         else {
             throw new Exception($"Unknown argument name [{param}]\n" +
-                $"Use -t, --t, --token -token.\n" +
-                $"Ex: -t oapzpdpaPADPwpda.1230192120");
+                $"Use -t, --t, --token -token");
         }
     }
 
