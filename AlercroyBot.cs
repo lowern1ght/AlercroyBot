@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using AlercroyBot.Models;
 using AlercroyBot.Modules;
 using Microsoft.Extensions.Configuration;
 using Serilog.Sinks.SystemConsole.Themes;
@@ -44,7 +43,8 @@ public class AlercroyBot
         var commands = new BotCommand[]
         {
             new BotCommand() { Command = "about", Description = "Write technical info about this bot" },
-            new BotCommand() { Command = "help", Description = "Write helpful guide what used this bot" }
+            new BotCommand() { Command = "help", Description = "Write helpful guide what used this bot" },
+            new BotCommand() { Command = "timer", Description = "set timer on day, min, sec, millisecond" }
         }; 
         
         AlercroyLogger.Debug("Add commands list: {array}",  JsonSerializer.Serialize(commands), 
@@ -87,6 +87,7 @@ public class AlercroyBot
 
         var action = messageText.Split(' ')[0] switch
         {
+            "/timer" => TimerCommandAsync(telegramBotClient, update, token, AlercroyLogger),
             "/help" => HelpCommandAsync(telegramBotClient, update, token, AlercroyLogger),
             _ => UnknownCommandAsync(telegramBotClient, update, token, AlercroyLogger)
         };
