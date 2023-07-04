@@ -1,23 +1,22 @@
-﻿using AlercroyBot.Extensions;
+﻿using System.Text.Json;
+using AlercroyBot.Models;
+using AlercroyBot.Modules;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Serilog.Sinks.SystemConsole.Themes;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
-using ILogger = Microsoft.Extensions.Logging.ILogger;
 
 namespace AlercroyBot;
+
+using static CommandsHandler;
 
 public class AlercroyBot
 {
     
-    private ILogger Logger { get; init; }
+    private Serilog.ILogger AlercroyLogger { get; init; }
     private IConfiguration Configuration { get; init; }
     private ITelegramBotClient TelegramBot { get; init; }
-    private IServiceCollection ServiceCollection { get; init; }
-    private CancellationTokenSource CancellationTokenSource { get; }
     
     public AlercroyBot(IConfiguration configuration)
     {
@@ -25,65 +24,78 @@ public class AlercroyBot
 
         if (Configuration["Token"] is String token)
         {
-            var logger = new LoggerConfiguration()
+            AlercroyLogger = new LoggerConfiguration()
                 .WriteTo.Console(theme: AnsiConsoleTheme.Code)
                 .MinimumLevel.Debug()
                 .CreateLogger();
             
-            ServiceCollection.AddSerilog(logger);
-            
-            this.TelegramBot = new TelegramBotClient(token);
-            this.CancellationTokenSource = new CancellationTokenSource();
+            TelegramBot = new TelegramBotClient(token);
         }
         else
         {
-            throw new ArgumentException("'Token' is not found or null in configuration manager", configuration.ToString());
+            var messageError = "'Token' is not found or null in configuration manager";
+            AlercroyLogger.Error(messageError + "{0}", configuration);
+            throw new ArgumentException(messageError, configuration.ToString());
         }
+    }
+
+    private async Task AddCommandsAsync()
+    {
+        var commands = new BotCommand[]
+        {
+            new BotCommand() { Command = "about", Description = "Write technical info about this bot" },
+            new BotCommand() { Command = "help", Description = "Write helpful guide what used this bot" }
+        }; 
+        
+        AlercroyLogger.Debug("Add commands list: {array}",  JsonSerializer.Serialize(commands), 
+            commands.Length);
+        
+        await TelegramBot.SetMyCommandsAsync(commands);
     }
 
     public async Task StartBotAsync()
     {
-        var botInfo = await this.TelegramBot.GetMeAsync();
-
+        await AddCommandsAsync();
+        
         ReceiverOptions receiverOptions = new ReceiverOptions
         {
             AllowedUpdates = Array.Empty<UpdateType>()
         };
 
         this.TelegramBot.StartReceiving(
-            UpdateReceiverHandler,
-            PollingExceptionHandler,
-            receiverOptions, this.CancellationTokenSource.Token);
+            HandleUpdateAsync,
+            HandlePollingErrorAsync,
+            receiverOptions, 
+            new CancellationToken());
 
-        Log.Information("Telegram bot {0} is started [{1}]", botInfo.Username, botInfo.Id);
+        var botInfo = await this.TelegramBot.GetMeAsync();
         
-        await ExitLoop(new [] {"exit", "quit"});
+        AlercroyLogger.Information("Telegram bot {0} is started [{1}]", botInfo.Username, botInfo.Id);
+
+        Console.ReadKey();
     }
 
-    private async Task ExitLoop(String commandToExit)
-        => await ExitLoop(new[] { commandToExit });
-    
-    private async Task ExitLoop(String[] commandToExit)
+    private async Task HandleUpdateAsync(ITelegramBotClient telegramBotClient, Update update, CancellationToken token)
     {
-        String command;
-        do
+        if (update.Message is not { Text: { } messageText })
+            return;
+
+        var chatId = update.Message.Chat.Id;
+        
+        AlercroyLogger.Information("Receiver message '{message}' from id: [{chatId}]",
+            messageText, chatId);
+
+        var action = messageText.Split(' ')[0] switch
         {
-            Console.Write("Await command to exit" + Environment.NewLine + " >");
-            command = Console.ReadLine().Trim();
-        } 
-        while (!commandToExit.Contains(command));
-        await Task.CompletedTask;
+            "/help" => HelpCommandAsync(telegramBotClient, update, token, AlercroyLogger),
+            _ => UnknownCommandAsync(telegramBotClient, update, token, AlercroyLogger)
+        };
+
+        await action;
     }
-
-    public async Task UpdateReceiverHandler(ITelegramBotClient client, Update update,
-        CancellationToken cancellationToken)
+    
+    private async Task HandlePollingErrorAsync(ITelegramBotClient telegramBotClient, Exception exception, CancellationToken token)
     {
-
-    }
-
-    public async Task PollingExceptionHandler(ITelegramBotClient client, Exception exception,
-        CancellationToken cancellationToken)
-    {
-
+        AlercroyLogger.Fatal(exception.Message, exception.Data);
     }
 }

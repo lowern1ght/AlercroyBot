@@ -36,10 +36,19 @@
 
   <ItemGroup>
     <Using Include="AlercroyBot" />
-    <Using Include="AlercroyBot.Modules" />
     <Using Include="AlercroyBot.Services" />
     <Using Include="Serilog" />
     <Using Include="Telegram.Bot" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="appsettings.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
