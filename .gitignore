@@ -364,3 +364,5 @@ FodyWeavers.xsd
 
 # properties, arguments
 Properties/
+
+.idea/

@@ -1,5 +1,5 @@
 ﻿namespace AlercroyBot.Services;
 
-internal class Logger {
-
+class Logger
+{
 }
