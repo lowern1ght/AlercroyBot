@@ -85,10 +85,13 @@ public class CommandsHandler
             throw new ArgumentException("/timer {args} is bad, [" + Update.Message.Chat.Username +"]");
         }
 
-        if (TimeSpan.TryParse(splitCommand?[1], CultureInfo.InvariantCulture, out var span))
+        if (TimerService.TryParseCommandLineToDuration(splitCommand, out var span))
         {
-            Logger?.Information("Start timer to {user}, on duration: {duration}", Update.Message?.Chat.Username, span);
-            var timerService = new TimerService(span, Update.Message!.Chat.Id, BotClient, null, Logger);
+            if (span.HasValue && span.Value is TimeSpan && span.Value != TimeSpan.Zero)
+            {
+                Logger?.Information("Start timer to {user}, on duration: {duration}", Update.Message?.Chat.Username, span);
+                var timerService = new TimerService(span.Value, Update.Message!.Chat.Id, BotClient, null, Logger);
+            }
         }
         else
         {
