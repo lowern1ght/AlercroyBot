@@ -4,10 +4,10 @@ namespace AlercroyBot.Services;
 
 public class TimerService
 {
-    public long ChatId { get; }
-    public TimeSpan Duration { get; }
-    public ITelegramBotClient Client { get; }
-    public ILogger? Logger { get; }
+    private long ChatId { get; }
+    private TimeSpan Duration { get; }
+    private ITelegramBotClient Client { get; }
+    private ILogger? Logger { get; }
 
     public TimerService(TimeSpan duration, Int64 chatId, ITelegramBotClient client, Action<String>? actionOnUnSleep, Serilog.ILogger? logger = null)
     {
@@ -15,8 +15,9 @@ public class TimerService
         this.ChatId = chatId;
         this.Client = client;
         this.Logger = logger;
-        
-        ActivityTimerHandler(actionOnUnSleep);
+
+        var activityTimerHandler = ActivityTimerHandler(actionOnUnSleep);
+        activityTimerHandler.Start();
     }
 
     private async Task ActivityTimerHandler(Action<String>? actionForUnSleep)
@@ -30,5 +31,6 @@ public class TimerService
         actionForUnSleep.Invoke(message);
         
         Logger?.Information("Timer service duration {duration} is end [{chatId}]", Duration, ChatId);
+        await Task.CompletedTask;
     }
 }

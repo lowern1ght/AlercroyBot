@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using AlercroyBot.Modules;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Serilog.Sinks.SystemConsole.Themes;
 using Telegram.Bot.Polling;
@@ -21,7 +22,7 @@ public class AlercroyBot
     {
         Configuration = configuration;
 
-        if (Configuration["Token"] is String token)
+        if (Configuration["Token"] is { } token)
         {
             AlercroyLogger = new LoggerConfiguration()
                 .WriteTo.Console(theme: AnsiConsoleTheme.Code)
@@ -33,7 +34,7 @@ public class AlercroyBot
         else
         {
             var messageError = "'Token' is not found or null in configuration manager";
-            AlercroyLogger.Error(messageError + "{0}", configuration);
+            AlercroyLogger?.Error(messageError + "{0}", configuration);
             throw new ArgumentException(messageError, configuration.ToString());
         }
     }
@@ -84,19 +85,27 @@ public class AlercroyBot
         
         AlercroyLogger.Information("Receiver message '{message}' from id: [{chatId}]",
             messageText, chatId);
+        
+        var commandWithArgs = messageText.Split(" ");
+        String command = commandWithArgs.Length >= 1 ? commandWithArgs[0] : String.Empty;
 
-        var action = messageText.Split(' ')[0] switch
+        var commandHandler = new CommandsHandler(telegramBotClient, new CancellationTokenSource(), update, command, AlercroyLogger);
+        Task action = commandHandler.UpdateCommand();
+        
+        try
         {
-            "/timer" => TimerCommandAsync(telegramBotClient, update, token, AlercroyLogger),
-            "/help" => HelpCommandAsync(telegramBotClient, update, token, AlercroyLogger),
-            _ => UnknownCommandAsync(telegramBotClient, update, token, AlercroyLogger)
-        };
-
-        await action;
+            await action;
+        }
+        catch (Exception e)
+        {
+            AlercroyLogger.Error(e.Message);
+        }
+        
     }
     
     private async Task HandlePollingErrorAsync(ITelegramBotClient telegramBotClient, Exception exception, CancellationToken token)
     {
         AlercroyLogger.Fatal(exception.Message, exception.Data);
+        await Task.CompletedTask;
     }
 }

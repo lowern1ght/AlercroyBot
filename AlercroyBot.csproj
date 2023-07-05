@@ -42,11 +42,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="appsettings.json" />
+    <None Remove="Properties\appsettings.json" />
+    <Content Include="Properties\appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Properties\appsettings.json">
+    <None Remove="Resources\timer_help.html" />
+    <EmbeddedResource Include="Resources\timer_help.md">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
