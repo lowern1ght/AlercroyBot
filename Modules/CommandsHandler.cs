@@ -73,19 +73,19 @@ public class CommandsHandler
     {
         Logger?.Information("Accepted 'timer' command, [{updateId}]", Update.Id);
 
-        var spitedCommand = Update.Message?.Text?.Split(" ");
+        var splitCommand = Update.Message?.Text?.Split(" ");
 
-        if (spitedCommand is { Length: <= 1 })
+        if (splitCommand is { Length: <= 1 })
         {
             await BotClient.SendTextMessageAsync(Update.Message!.Chat.Id,
                 "**/timer** arguments is bad... use /help /timer to get info",
                 parseMode: ParseMode.Markdown, 
                 replyToMessageId: Update.Message.MessageId);
             
-            throw new ArgumentException("/timer arguments is bad");
+            throw new ArgumentException("/timer {args} is bad, [" + Update.Message.Chat.Username +"]");
         }
 
-        if (TimeSpan.TryParse(spitedCommand?[1], CultureInfo.InvariantCulture, out var span))
+        if (TimeSpan.TryParse(splitCommand?[1], CultureInfo.InvariantCulture, out var span))
         {
             Logger?.Information("Start timer to {user}, on duration: {duration}", Update.Message?.Chat.Username, span);
             var timerService = new TimerService(span, Update.Message!.Chat.Id, BotClient, null, Logger);
@@ -109,7 +109,6 @@ public class CommandsHandler
         
         if (commandArgs is { Length: 2 })
         {
-            
             String messageHelp = String.Empty;
             var parseMod = ParseMode.MarkdownV2;
             

@@ -13,7 +13,6 @@ using static CommandsHandler;
 
 public class AlercroyBot
 {
-    
     private Serilog.ILogger AlercroyLogger { get; init; }
     private IConfiguration Configuration { get; init; }
     private ITelegramBotClient TelegramBot { get; init; }
@@ -43,9 +42,9 @@ public class AlercroyBot
     {
         var commands = new BotCommand[]
         {
-            new BotCommand() { Command = "about", Description = "Write technical info about this bot" },
-            new BotCommand() { Command = "help", Description = "Write helpful guide what used this bot" },
-            new BotCommand() { Command = "timer", Description = "set timer on day, min, sec, millisecond" }
+            new BotCommand { Command = "about", Description = "Write technical info about this bot" },
+            new BotCommand { Command = "help", Description = "Write helpful guide what used this bot" },
+            new BotCommand { Command = "timer", Description = "set timer on day, min, sec, millisecond" }
         }; 
         
         AlercroyLogger.Debug("Add commands list: {array}",  JsonSerializer.Serialize(commands), 
@@ -63,13 +62,12 @@ public class AlercroyBot
             AllowedUpdates = Array.Empty<UpdateType>()
         };
 
-        this.TelegramBot.StartReceiving(
+        TelegramBot.StartReceiving(
             HandleUpdateAsync,
             HandlePollingErrorAsync,
-            receiverOptions, 
-            new CancellationToken());
+            receiverOptions);
 
-        var botInfo = await this.TelegramBot.GetMeAsync();
+        var botInfo = await TelegramBot.GetMeAsync();
         
         AlercroyLogger.Information("Telegram bot {0} is started [{1}]", botInfo.Username, botInfo.Id);
 
@@ -100,7 +98,6 @@ public class AlercroyBot
         {
             AlercroyLogger.Error(e.Message);
         }
-        
     }
     
     private async Task HandlePollingErrorAsync(ITelegramBotClient telegramBotClient, Exception exception, CancellationToken token)
