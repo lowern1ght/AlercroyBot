@@ -44,7 +44,8 @@ public class AlercroyBot
         {
             new BotCommand { Command = "about", Description = "Write technical info about this bot" },
             new BotCommand { Command = "help", Description = "Write helpful guide what used this bot" },
-            new BotCommand { Command = "timer", Description = "set timer on day, min, sec, millisecond" }
+            new BotCommand { Command = "timer", Description = "set timer on day, min, sec, millisecond" },
+            new BotCommand { Command = "timers", Description = "get active timers list" }
         }; 
         
         AlercroyLogger.Debug("Add commands list: {array}",  JsonSerializer.Serialize(commands), 

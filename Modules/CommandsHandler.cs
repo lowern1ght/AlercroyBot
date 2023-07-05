@@ -33,6 +33,7 @@ public class CommandsHandler
     {
         return Command switch
         {
+            "/timers" => GetTimersCommandAsync(TokenSource),
             "/timer" => TimerCommandAsync(TokenSource),
             "/help" => HelpCommandAsync(new CancellationTokenSource()),
             _ => UnknownCommandAsync(new CancellationTokenSource())
@@ -73,7 +74,7 @@ public class CommandsHandler
     {
         Logger?.Information("Accepted 'timer' command, [{updateId}]", Update.Id);
 
-        var splitCommand = Update.Message?.Text?.Split(" ");
+        string[] splitCommand = Update.Message?.Text?.Split(" ") ?? new string[] {};
 
         if (splitCommand is { Length: <= 1 })
         {
@@ -87,7 +88,7 @@ public class CommandsHandler
 
         if (TimerService.TryParseCommandLineToDuration(splitCommand, out var span))
         {
-            if (span.HasValue && span.Value is TimeSpan && span.Value != TimeSpan.Zero)
+            if (span.HasValue && span.Value != TimeSpan.Zero)
             {
                 Logger?.Information("Start timer to {user}, on duration: {duration}", Update.Message?.Chat.Username, span);
                 var timerService = new TimerService(span.Value, Update.Message!.Chat.Id, BotClient, null, Logger);
@@ -99,6 +100,16 @@ public class CommandsHandler
         }
     }
 
+    private async Task GetTimersCommandAsync(CancellationTokenSource tokenSource)
+    {
+        if (Update.Message is { Chat: not null })
+        {
+            var chatId = Update.Message.Chat.Id;
+            Logger?.Information("Accepted 'timers' command [{chatId}]", chatId);
+            await TimerService.GetHowTimeIsLeftTimers(BotClient, chatId);
+        }
+    }
+    
     private async Task HelpCommandAsync(CancellationTokenSource tokenSource)
     {
         if (Update.Message is null or { Text: null })
