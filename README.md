@@ -27,6 +27,10 @@ then everything will be described in detail, the actions of the work and the par
 
 ![new timer](Repository/tmr_1.png)
 
+more arguments list)
+
+![more argument](Repository/tmr_3.png)
+
 If you want to see active timers _=>_ use **/timers** and bot write all ur timers
 
 ![timers](Repository/tmr_2.png)
