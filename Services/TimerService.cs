@@ -88,7 +88,7 @@ public class TimerService
         }
     }
 
-    private static Task<TimeSpan> ParseCommandLineToDurationAsync(String[] strings)
+    private static TimeSpan ParseCommandLineToDurationAsync(String[] strings)
     {
         (int sec, int min, int hour, int days) tupleTime = (0, 0, 0, 0);
         
@@ -124,14 +124,14 @@ public class TimerService
             result = new TimeSpan(tupleTime.days, tupleTime.hour, tupleTime.min, tupleTime.sec);
         }
 
-        return Task.FromResult(result);
+        return result;
     }
 
     public static Boolean TryParseCommandLineToDuration(String[] strings, out TimeSpan? span)
     {
         try
         {
-            span = ParseCommandLineToDurationAsync(strings).GetAwaiter().GetResult();
+            span = ParseCommandLineToDurationAsync(strings);
             return true;
         }
         catch (Exception e)
