@@ -25,13 +25,10 @@ public class TimerService
         Duration = duration;
         BeginDuration = DateTime.Now;
 
-        async void ThreadStart()
-        {
-            await ActivityTimerHandler(null);
-        }
+        async void ThreadStart() 
+            => await ActivityTimerHandler(actionOnUnSleep);
 
-        Thread threadDuration 
-            = new Thread(new ThreadStart(ThreadStart));
+        Thread threadDuration = new Thread(ThreadStart);
         
         threadDuration.Start();
     }
@@ -134,7 +131,7 @@ public class TimerService
             span = ParseCommandLineToDurationAsync(strings);
             return true;
         }
-        catch (Exception e)
+        catch (Exception)
         {
             span = null;
         }
