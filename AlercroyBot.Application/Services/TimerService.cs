@@ -1,7 +1,9 @@
+using System.Globalization;
 using Serilog.Core;
-using AlercroyBot.Application.Interfaces;
+using Humanizer;
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
+using AlercroyBot.Application.Interfaces;
 using Timer = AlercroyBot.Application.Entity.Timer;
 
 namespace AlercroyBot.Application.Services;
@@ -9,6 +11,9 @@ namespace AlercroyBot.Application.Services;
 public class TimerService : ITimerService
 {
     private readonly Logger _logger;
+
+    private static readonly CultureInfo DefaultCulture = new CultureInfo("en");
+    
     private static List<Timer> Timers { get; } = new();
     
     private readonly ReaderWriterLockSlim _readerWriterLockSlim = new ReaderWriterLockSlim();
@@ -20,11 +25,11 @@ public class TimerService : ITimerService
     
     public Task StartTimerAsync(long chatId, TimeSpan duration, ITelegramBotClient botClient)
     {
-        new Thread(() => StartTimerWatcher(ref chatId, ref duration, botClient)).Start();
+        new Thread(() => StartTimerWatcher(chatId, ref duration, botClient)).Start();
         return Task.CompletedTask;
     }
 
-    private void StartTimerWatcher(ref long chatId, ref TimeSpan duration, ITelegramBotClient botClient)
+    private void StartTimerWatcher(long chatId, ref TimeSpan duration, ITelegramBotClient botClient)
     {
         _readerWriterLockSlim.TryEnterWriteLock(100);
 
@@ -40,7 +45,7 @@ public class TimerService : ITimerService
             
             botClient.SendTextMessageAsync(
                 chatId, 
-                $"Timer **{duration:g}** started",
+                $"timer *{duration.Humanize(culture: DefaultCulture)}* started",
                 parseMode: ParseMode.Markdown, 
                 cancellationToken: new CancellationToken())
                 .GetAwaiter().GetResult();
@@ -51,10 +56,10 @@ public class TimerService : ITimerService
             
             botClient.SendTextMessageAsync(
                 chatId, 
-                $"Timer **{duration:g}** is end",
+                $"timer *{duration.Humanize(culture: DefaultCulture)}* is end",
                 parseMode: ParseMode.Markdown, 
                 cancellationToken: new CancellationToken())
-                .GetAwaiter().GetResult();;
+                .GetAwaiter().GetResult();
 
             _readerWriterLockSlim.TryEnterWriteLock(100);
 
@@ -66,7 +71,7 @@ public class TimerService : ITimerService
         }
         
     }
-
+    
     public async Task<IEnumerable<Timer>?> GetTimersListAsync(long? chatId)
     {
         _readerWriterLockSlim.TryEnterReadLock(100);

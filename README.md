@@ -27,7 +27,7 @@ add Attribute: **CommandDescription**
 [CommandDescription("test", "the description for test command")]
 public class TestCommand : ICommandAsync 
 {
-    ....
+    ...
 }
 ```
 
@@ -38,5 +38,5 @@ public class TestCommand : ICommandAsync
 ### Development
 
  - [ ] Add DBContext to save user settings
- - [ ] Add humazizer translate and formating to more language if can set to command */language*
+ - [x] Add humazizer translate and formating to more language if can set to command */language*
  - [ ] Transfer to ConcurrentDictionary TimerService
