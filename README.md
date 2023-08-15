@@ -20,7 +20,7 @@ the bot has a number of features:
 > The first step is to create a new class inheriting the **ICommandAsync** interface and 
 add Attribute: **CommandDescription**
 
-- You can also get the added built-in services in the constructor because this bot uses MsDI
+- You can also get the added built-in services in the constructor because this bot uses MSDI
 
 ```csharp
 
