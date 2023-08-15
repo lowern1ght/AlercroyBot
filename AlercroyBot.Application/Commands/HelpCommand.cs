@@ -18,7 +18,7 @@ public class HelpCommand : ICommandAsync
 
     private const String TextMessage 
         = @"- /**help**: write help to use this bot
-            - /**timer:** set timer on time (s, m, h, d), u can more than one timer
+            - /**timer:** set timer on time (s, m, h, d)
             - /**timers:** get ur timers list";
 
     public async Task ExecuteAsync(ITelegramBotClient botClient, Update update, string command, string[] arguments,

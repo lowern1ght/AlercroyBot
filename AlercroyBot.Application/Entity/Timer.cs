@@ -1,5 +1,3 @@
-using System.Collections.ObjectModel;
-
 namespace AlercroyBot.Application.Entity;
 
 public class Timer
@@ -7,7 +5,7 @@ public class Timer
     public Int64 ChatId { get; }
     public TimeSpan Duration { get; }
 
-    public Timer(long chatId, TimeSpan duration)
+    public Timer(long chatId, ref TimeSpan duration)
     {
         this.ChatId = chatId;
         this.Duration = duration;
@@ -22,32 +20,31 @@ public class Timer
         { 'y', TimeSpan.FromDays(364).Seconds },
     };
     
-    public Boolean TryParse(Object o, out TimeSpan? duration)
+    public static Boolean TryParse(String message, out TimeSpan duration)
     {
-        if (o is String message)
-        {
-            try
-            {
-                duration = Parse(message);
-                return true;
-            }
-            catch (Exception)
-            {
-                duration = null;
-                return false;
-            }
-        }
-
-        duration = null;
-        return false;
+        return TryParse(message.Split(' '), out duration);
     }
     
-    public TimeSpan Parse(String message)
+    public static Boolean TryParse(String[] arguments, out TimeSpan duration)
+    {
+        try
+        {
+            duration = Parse(arguments);
+            return true;
+        }
+        catch (Exception)
+        {
+            duration = default;
+            return false;
+        } 
+    }
+
+    public static TimeSpan Parse(String message)
     {
         return Parse(message.Split(' '));
     }
     
-    public TimeSpan Parse(String[] arguments)
+    public static TimeSpan Parse(String[] arguments)
     {
         var seconds = Int64.MinValue;
         
@@ -65,7 +62,7 @@ public class Timer
         return TimeSpan.FromSeconds(seconds);
     }
 
-    private Int64 ParseArgumentDuration(String argument)
+    private static Int64 ParseArgumentDuration(String argument)
     {
         List<Char> chars = new List<char>();
 

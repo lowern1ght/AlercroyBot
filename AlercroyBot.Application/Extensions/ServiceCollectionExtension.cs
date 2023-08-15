@@ -24,6 +24,8 @@ public static class ServiceCollectionExtension
                     var commandInfo = new BotCommandInfo(
                         type,
                         new BotCommand { Command = attribute.Command, Description = attribute.Description });
+
+                    serviceCollection.AddTransient(type);
                     
                     commandsInfo.Add(commandInfo);
                 }
@@ -37,6 +39,6 @@ public static class ServiceCollectionExtension
 
     public static IServiceCollection AddTimerService(this IServiceCollection serviceCollection)
     {
-        return serviceCollection.AddSingleton<ITimerService, TimerService>();
+        return serviceCollection.AddTransient<ITimerService, TimerService>();
     }
 }
