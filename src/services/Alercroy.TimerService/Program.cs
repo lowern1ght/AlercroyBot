@@ -1,25 +1,42 @@
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.AddControllers();
+
+builder.Services.AddRouting(options
+    => options.LowercaseUrls = true);
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
+//Todo: add logger and DbContext *Timers*
+
+//Todo: features add work timers through message broker
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-var app = builder.Build();
+var application = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+if (application.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    application.UseSwagger();
+    application.UseSwaggerUI();
+}
+else
+{
+    application.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
+application.UseAuthorization();
 
-app.UseAuthorization();
+application.UseCors(policyBuilder =>
+{
+    policyBuilder
+        .AllowAnyHeader()
+        .AllowAnyMethod()
+        .AllowAnyOrigin()
+        .AllowCredentials();
+});
 
-app.MapControllers();
+application.MapControllers();
 
-app.Run();
+application.Run();

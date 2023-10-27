@@ -1,3 +1,6 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using Alercroy.TelegramBot;
 
-Console.WriteLine("Hello, World!");
+var alercroyBot = new AlercroyBot(args);
+
+//Run synchronous
+alercroyBot.Run();

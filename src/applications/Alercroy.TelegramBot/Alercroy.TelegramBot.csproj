@@ -5,9 +5,11 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <AssemblyVersion>0.10.1a</AssemblyVersion>
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
       <PackageReference Include="Microsoft.Extensions.Configuration" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="7.0.0" />
       <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.4" />
@@ -24,7 +26,14 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Services\" />
+      <None Update="botsettings.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\..\infrastructures\Alercroy.Services.Timer\Alercroy.Services.Timer.csproj" />
+      <ProjectReference Include="..\..\storages\Alercroy.Database.Timer\Alercroy.Database.Timer.csproj" />
     </ItemGroup>
 
 </Project>

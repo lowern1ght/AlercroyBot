@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog.Events;
+using Telegram.Bot;
 
 namespace Alercroy.TelegramBot;
 
@@ -37,5 +38,14 @@ public class AlercroyBot
 
         _serviceProvider = serviceCollection
             .BuildServiceProvider();
+    }
+
+    public void Run()
+    {
+        var telegramBot = _serviceProvider.GetRequiredService<ITelegramBotClient>();
+
+        throw new NotImplementedException();
+
+        Console.ReadKey();
     }
 }
